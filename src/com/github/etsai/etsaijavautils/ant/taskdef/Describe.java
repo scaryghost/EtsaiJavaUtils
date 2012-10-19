@@ -5,6 +5,7 @@
 package com.github.etsai.etsaijavautils.ant.taskdef;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import org.apache.tools.ant.BuildException;
@@ -22,7 +23,8 @@ public class Describe extends Task {
     @Override
     public void execute() {
         try {
-            Process proc= Runtime.getRuntime().exec(gitCommand);
+            File baseDir= getProject().getBaseDir();
+            Process proc= Runtime.getRuntime().exec(gitCommand, null, baseDir);
             String describe= new BufferedReader(new InputStreamReader(proc.getInputStream())).readLine();
             String[] versionParts= describe.split("-");
             
