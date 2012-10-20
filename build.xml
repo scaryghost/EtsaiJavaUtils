@@ -74,6 +74,6 @@
     
     <target name="publish" depends="jar">
         <taskdef name="publish" classname="com.github.etsai.utils.ant.taskdef.Publish" classpath="${build.classes.dir}"/>
-        <publish srcjar="${dist.jar}" dest="${dest.dir}" />
+        <publish srcjar="${dist.jar}" dest="${dist.dir}" />
     </target>
 </project>
