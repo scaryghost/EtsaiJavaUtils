@@ -37,7 +37,7 @@ public class TeeLogger extends OutputStream {
     FileWriter log;
     PrintStream oldStream;
     
-    TeeLogger(FileWriter log, PrintStream oldStream) {
+    public TeeLogger(FileWriter log, PrintStream oldStream) {
         this.log= log;
         this.oldStream= oldStream;
     }
