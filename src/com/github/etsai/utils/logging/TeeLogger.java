@@ -57,7 +57,8 @@ public class TeeLogger extends OutputStream {
     
     @Override
     public void write(int b) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        log.write(b);
+        oldStream.write(b);
     }
     
 }
