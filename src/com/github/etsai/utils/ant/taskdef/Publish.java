@@ -27,7 +27,6 @@ public class Publish extends Task {
     public void execute() {
         try {
             FileUtils utils= FileUtils.getFileUtils();
-            
             File baseDir= getProject().getBaseDir();
             Process proc= Runtime.getRuntime().exec(gitCommand, null, baseDir);
             String describe= new BufferedReader(new InputStreamReader(proc.getInputStream())).readLine();
@@ -46,12 +45,15 @@ public class Publish extends Task {
             
             String jar= srcJar.getName();
             String jarName= jar.substring(0, jar.lastIndexOf(".jar"));
-            File newJar= new File(dest, String.format("%s-%s.jar", jarName, version));
+            File newJar= new File(baseDir, new File(dest, String.format("%s-%s.jar", jarName, version)).toString());
+            File fullSrcJar= new File(baseDir, srcJar.toString());
             
             if (preserve) {
-                utils.copyFile(srcJar, newJar);
+                utils.copyFile(fullSrcJar, newJar);
+                System.out.println("Jar copied to: " + newJar);
             } else {
-                utils.rename(srcJar, newJar);
+                utils.rename(fullSrcJar, newJar);
+                System.out.println("Jar renamed to: " + newJar);
             }
         } catch (IOException ex) {
             ex.printStackTrace(System.err);

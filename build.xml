@@ -72,9 +72,8 @@
 
     -->
     
-    <target name="describe" depends="jar">
-        <taskdef name="describe" classname="com.github.etsai.etsaijavautils.ant.taskdef.Describe" classpath="${build.classes.dir}"/>
-        <describe dirtyproperty="dirty" versionproperty="version" />
-        <echo message="Version: ${version}, Dirty: ${dirty}"/>
+    <target name="publish" depends="jar">
+        <taskdef name="publish" classname="com.github.etsai.utils.ant.taskdef.Publish" classpath="${build.classes.dir}"/>
+        <publish srcjar="${dist.jar}" dest="${dest.dir}" />
     </target>
 </project>
