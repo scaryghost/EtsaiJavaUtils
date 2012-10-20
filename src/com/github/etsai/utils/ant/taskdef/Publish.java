@@ -19,7 +19,7 @@ import org.apache.tools.ant.util.FileUtils;
 public class Publish extends Task {
     private static String gitCommand= "git describe --dirty --long";
     
-    private Boolean preserve= false;
+    private Boolean preserve= true;
     private File dest;
     private File srcJar;
     
