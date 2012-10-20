@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.github.etsai.etsaijavautils.logging;
+package com.github.etsai.utils.logging;
 
 import java.io.File;
 import java.io.FileWriter;

@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.github.etsai.etsaijavautils.ant.taskdef;
+package com.github.etsai.utils.ant.taskdef;
 
 import java.io.BufferedReader;
 import java.io.File;
