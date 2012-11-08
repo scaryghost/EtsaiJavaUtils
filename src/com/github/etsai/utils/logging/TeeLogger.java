@@ -14,10 +14,16 @@ import java.net.UnknownHostException;
 import java.util.Date;
 
 /**
- * Logs all output on STDOUT and STDERR to file
+ * Logs all data being sent to a PrintStream
  * @author etsai
  */
 public class TeeLogger extends OutputStream {
+    /**
+     * Generates a filename that the created FileWriter will write to
+     * @param execName Executable name
+     * @return FileWriter object ready to write to file
+     * @throws IOException If the FileWriter object cannot be created
+     */
     public static FileWriter getFileWriter(String execName) throws IOException {
         String localHostAddress;
             
@@ -35,30 +41,45 @@ public class TeeLogger extends OutputStream {
     }
     
     FileWriter log;
-    PrintStream oldStream;
+    PrintStream stream;
     
-    public TeeLogger(FileWriter log, PrintStream oldStream) {
+    /**
+     * Create a TeeLogger object, logging data from the given stream to the writer
+     * @param log FileWriter to send the output to
+     * @param stream Stream to log
+     */
+    public TeeLogger(FileWriter log, PrintStream stream) {
         this.log= log;
-        this.oldStream= oldStream;
+        this.stream= stream;
     }
     
-    @Override
-    public void flush() throws IOException {
+    /**
+     * Flush both writer and original stream
+     * @throws IOException If an error occurred while flushing both streams
+     */
+    @Override public void flush() throws IOException {
         super.flush();
         log.flush();
-        oldStream.flush();
+        stream.flush();
     }
     
-    @Override
-    public void close() throws IOException {
+    /**
+     * Close both writer and original stream
+     * @throws IOException If an error occurred while attempting to close either stream
+     */
+    @Override public void close() throws IOException {
         super.close();
         log.close();
     }
     
-    @Override
-    public void write(int b) throws IOException {
+    /**
+     * Write the character to both log and original stream
+     * @param b Character to write
+     * @throws IOException If an error occurred while writing to log and stream
+     */
+    @Override public void write(int b) throws IOException {
         log.write(b);
-        oldStream.write(b);
+        stream.write(b);
     }
     
 }
