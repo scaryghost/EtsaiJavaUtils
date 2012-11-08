@@ -8,11 +8,45 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Manipulates times from a DD:HH:MM:SS perspective
+ * Manipulates times from a days, hours, minutes, and seconds perspective
  * @author etsai
  */
 public class Time {
     private static Pattern timePat= Pattern.compile("(\\d+) days (\\d{2}):(\\d{2}):(\\d{2})");
+    
+    /**
+     * Converts seconds into the D days HH:MM:SS format
+     * @param seconds   Number of seconds
+     * @return String representation of the conversion
+     */
+    public static String secToStr(long seconds) {
+        int sec= (int) (seconds % 60);
+        int minutes= (int) (seconds / 60) % 60;
+        int hours= (int) (seconds / 3600) % 24;
+        int days= (int) ((seconds / 3600) / 24);
+        
+        return String.format("%d days %02d:%02d:%02d", days, hours, minutes, sec);
+    }
+    
+    /**
+     * Converts the "D days HH:MM:SS" representation of time into seconds
+     * @param time String format of a time object
+     * @return Conversion to seconds
+     * @throws TimeFormatException If the input string is not in the form "D days HH:MM:SS"
+     */
+    public static long strToSec(String time) throws TimeFormatException {
+        Matcher matcher= timePat.matcher(time);
+        
+        if (!matcher.matches()) {
+            throw new RuntimeException("Input is not in the format D days HH:MM:SS");
+        }
+        int days= Integer.valueOf(matcher.group(1));
+        int hours= Integer.valueOf(matcher.group(2));
+        int minutes= Integer.valueOf(matcher.group(3));
+        int seconds= Integer.valueOf(matcher.group(4));
+        
+        return (long)seconds + minutes * 60 + hours * 3600 + days * 86400;
+    }
     
     private int days, hours, minutes, seconds;
     
@@ -35,7 +69,7 @@ public class Time {
      * @param timeStr String representation to convert
      * @throws Exception if input does not match pattern
      */
-    public Time(String timeStr) throws RuntimeException {
+    public Time(String timeStr) throws TimeFormatException {
         Matcher matcher= timePat.matcher(timeStr);
         
         if (!matcher.matches()) {
@@ -79,8 +113,9 @@ public class Time {
     /**
      * Adds the string representation of t2 into the calling object
      * @param t2 Time offset in the form "D days HH:MM:SS"
+     * @throws TimeFormatException If the input is not in the form "D days HH:MM:SS"
      */
-    public void add(String t2) {
+    public void add(String t2) throws TimeFormatException {
         add(new Time(t2));
     }
     /**
