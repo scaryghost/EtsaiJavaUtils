@@ -13,8 +13,37 @@ import org.apache.tools.ant.Task;
 import org.apache.tools.ant.util.FileUtils;
 
 /**
- *
- * @author eric
+ * Renames the project jar file with the project version included in the name.  The information 
+ * is pulled in from "git describe --dirty --long"
+ * <h3>Attributes</h3>
+ * <table border="1">
+ * <thead>
+ *      <tr>
+ *          <th>Name</th>
+ *          <th>Description</th>
+ *          <th>Required</th>
+ *      </tr>
+ * </thead>
+ * <tbody>
+ *      <tr>
+ *          <td>preserve</td>
+ *          <td>If true, the original jar file will be kept otherwise it will be deleted.  
+ *          If attribute is not specified, the attribute will default to true</td>
+ *          <td>No</td>
+ *      </tr>
+ *      <tr>
+ *          <td>srcjar</td>
+ *          <td>Jar to be renamed</td>
+ *          <td>Yes</td>
+ *      </tr>
+ *      <tr>
+ *          <td>dest</td>
+ *          <td>Destination folder the renamed jar will reside in</td>
+ *          <td>Yes</td>
+ *      </tr>
+ * </tbody>
+ * </table>
+ * @author etsai
  */
 public class Publish extends Task {
     private static String gitCommand= "git describe --dirty --long";
@@ -23,9 +52,20 @@ public class Publish extends Task {
     private File dest;
     private File srcJar;
     
-    @Override
-    public void execute() {
+    /**
+     * Executes the task.
+     * @throws BuildException If any of the required attributes are missing, there 
+     * is an error renaming the jar, or git describe failed to run
+     */
+    @Override public void execute() throws BuildException {
         try {
+            if (srcJar == null) {
+                throw new BuildException("Required attribute srcjar not set");
+            }
+            if (dest == null) {
+                throw new BuildException("Required attribute dest not set");
+            }
+            
             FileUtils utils= FileUtils.getFileUtils();
             File baseDir= getProject().getBaseDir();
             Process proc= Runtime.getRuntime().exec(gitCommand, null, baseDir);
@@ -61,13 +101,26 @@ public class Publish extends Task {
         }
     }
     
+    /**
+     * Sets the preserve attribute.  If the attribute is true (case insensitive), the 
+     * original jar will be kept.  Otherwise, it will be deleted.
+     * @param preserve Flag to determine if the original jar should be kept
+     */
     public void setPreserve(String preserve) {
         this.preserve= Boolean.valueOf(preserve);
     }
+    /**
+     * Sets the srcjar attribute.  The attribute is the jar to be renamed.  This is a required attribute.
+     * @param srcJar The jar to be renamed
+     */
     public void setSrcJar(String srcJar) {
         this.srcJar= new File(srcJar);
     }
-    
+    /**
+     * Sets the dest attribute.  The attribute is the folder the renamed jar should reside in.  
+     * This is a required attribute.
+     * @param dest Folder the renamed jar will be
+     */
     public void setDest(String dest) {
         this.dest= new File(dest);
     }
