@@ -19,12 +19,13 @@ import java.util.Date;
  */
 public class TeeLogger extends OutputStream {
     /**
-     * Generates a filename that the created FileWriter will write to
+     * Creates a FileWriter that will write to log file
      * @param execName Executable name
+     * @param baseDir Directory to store the log file
      * @return FileWriter object ready to write to file
      * @throws IOException If the FileWriter object cannot be created
      */
-    public static FileWriter getFileWriter(String execName) throws IOException {
+    public static FileWriter getFileWriter(String execName, File baseDir) throws IOException {
         String localHostAddress;
             
         try {
@@ -34,10 +35,13 @@ public class TeeLogger extends OutputStream {
             localHostAddress= "unknown";
         }
         
-        String filename= String.format("%s.%s.%tY%<tm%<td-%<tH%<tM%<tS.log",
+        if (!baseDir.exists()) {
+            baseDir.mkdirs();
+        }
+        String filename= String.format("%s.%s.%tY%<tm%<td-%<tH%<tM%<tS.log", 
                 execName, localHostAddress, new Date());
         
-        return new FileWriter(new File(filename)); 
+        return new FileWriter(new File(baseDir, filename)); 
     }
     
     FileWriter log;
