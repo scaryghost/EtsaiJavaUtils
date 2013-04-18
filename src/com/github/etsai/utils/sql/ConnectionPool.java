@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
@@ -41,6 +42,8 @@ public class ConnectionPool {
     public ConnectionPool(int maxConnections) {
         this.maxConnections= maxConnections;
         dbProps= new Properties();
+        availableConnections= new PriorityQueue<>();
+        usedConnections= new HashMap<>();
     }
     public ConnectionPool() {
         this(5);
