@@ -19,12 +19,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author eric
+ * Manages a pool of connections to an SQL database.
+ * @author etsai
  */
 public class ConnectionPool {
+    /**
+     * Stores state information for a connection in the form of a tuple
+     * @author etsai
+     */
     static class ConnectionInfo implements Comparator<Date> {
+        /** Last time the connection was removed from the pool */
         public Date lastUsed;
+        /** Connection to the database */
         public Connection connection;
 
         @Override
@@ -33,38 +39,74 @@ public class ConnectionPool {
         }
     }
     
+    /** Max number of connections in the pool */
     private int maxConnections;
+    /** URL to the database */
     private String url;
+    /** Properties for connecting to the database */
     private Properties dbProps;
+    /** Open connections that are not being used, ordered by last used date */
     private PriorityQueue<ConnectionInfo> availableConnections;
+    /** Connections that are currently being used */
     private Map<Connection, ConnectionInfo> usedConnections;
     
+    /**
+     * Creates a pool with a configurable connection limit
+     * @param   maxConnections      Max number of connections in the pool
+     */
     public ConnectionPool(int maxConnections) {
         this.maxConnections= maxConnections;
         dbProps= new Properties();
         availableConnections= new PriorityQueue<>();
         usedConnections= new HashMap<>();
     }
+    /**
+     * Creates a pool with the default number of 5 connections
+     */
     public ConnectionPool() {
         this(5);
     }
+    /**
+     * Set the URL to the database
+     * @param   url     URL to the database
+     */
     public void setJdbcUrl(String url) {
         this.url= url;
     }
+    /**
+     * Set the user name for logging into the database
+     * @param   user    Username to login
+     */
     public void setDbUser(String user) {
         dbProps.setProperty("user", user);
     }
+    /**
+     * Set the password for logging into the database
+     * @param   password    Password to login
+     */
     public void setDbPassword(String password) {
         dbProps.setProperty("password", password);
     }
+    /**
+     * Set the max number of connections the pool will hold
+     * @param   maxConnections  Max number of open connections
+     */
     public void setMaxConnections(int maxConnections) {
         this.maxConnections= maxConnections;
     }
+    /**
+     * Release a connection, adding it back to the pool of available connections
+     * @param   conn    Connection to release
+     */
     public synchronized void release(Connection conn) {
         availableConnections.add(usedConnections.get(conn));
         usedConnections.remove(conn);
         notifyAll();
     }
+    /**
+     * Get a connection from the pool.  If the pool is empty but max connections not reached, a new connection will be openned.
+     * @throws SQLException If a connection cannot be made to the database
+     */
     public synchronized Connection getConnection() throws SQLException {
         if (availableConnections.isEmpty()) {
             if (usedConnections.keySet().size() >= maxConnections) {
@@ -83,6 +125,10 @@ public class ConnectionPool {
         usedConnections.put(availableConnections.peek().connection, availableConnections.peek());
         return availableConnections.poll().connection;
     }
+    /**
+     * Close all connections in the pool
+     * @throws SQLException If an error occured from closing a connection
+     */
     public void close() throws SQLException {
         while(!availableConnections.isEmpty()) {
             availableConnections.poll().connection.close();
