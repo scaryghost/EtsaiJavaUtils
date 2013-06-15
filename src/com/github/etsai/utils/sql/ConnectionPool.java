@@ -95,6 +95,14 @@ public class ConnectionPool {
         this.maxConnections= maxConnections;
     }
     /**
+     * Set the JDBC driver name that is needed to connect to the database
+     * @param   driver  JDBC driver name
+     * @throws ClassNotFoundException If the driver class cannot be loaded
+     */
+    public void setDbDriver(String driver) throws ClassNotFoundException {
+        Class.forName(driver);
+   }
+    /**
      * Release a connection, adding it back to the pool of available connections.  If the connection 
      * to release is null or not a valid used connection in the pool, this function will not do anything
      * @param   conn    Connection to release
@@ -108,7 +116,7 @@ public class ConnectionPool {
     }
     /**
      * Get a connection from the pool.  If the pool is empty but max connections not reached, a new 
-     * connection will be openned.  If max connections has been reached, the function will block until 
+     * connection will be opened.  If max connections has been reached, the function will block until 
      * a connection is available.
      * @throws SQLException If a connection cannot be made to the database
      */
