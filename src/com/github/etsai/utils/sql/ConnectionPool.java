@@ -4,7 +4,9 @@
  */
 package com.github.etsai.utils.sql;
 
+import java.lang.ClassLoader;
 import java.sql.Connection;
+import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Calendar;
@@ -95,13 +97,25 @@ public class ConnectionPool {
         this.maxConnections= maxConnections;
     }
     /**
-     * Set the JDBC driver name that is needed to connect to the database
-     * @param   driver  JDBC driver name
+     * Set the JDBC driver name that is needed to connect to the database 
+     * @param   driverClassName  JDBC driver name
+     * @param   loader  Class loader to use to load the driver.  Use null if the default class loader should be used
      * @throws ClassNotFoundException If the driver class cannot be loaded
+     * @throws SQLException If an error occured reistering the driver
+     * @throws InstantiationException If the JDBC driver could not be instantiated
+     * @throws IllegalAccessException If the JDBC driver could not be instantiated
      */
-    public void setDbDriver(String driver) throws ClassNotFoundException {
-        Class.forName(driver);
-   }
+    public void setDbDriver(String driverClassName, ClassLoader loader) throws ClassNotFoundException, 
+            SQLException, InstantiationException, IllegalAccessException {
+        Driver driver;
+        if (loader == null) {
+            driver=  (Driver)Class.forName(driverClassName).newInstance();
+        } else {
+            driver= (Driver)Class.forName(driverClassName, true, loader).newInstance();
+        }
+        DriverManager.registerDriver(new FakeSqlDriver(driver));
+    }
+
     /**
      * Release a connection, adding it back to the pool of available connections.  If the connection 
      * to release is null or not a valid used connection in the pool, this function will not do anything
