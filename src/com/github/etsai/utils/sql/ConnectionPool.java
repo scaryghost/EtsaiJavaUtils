@@ -4,19 +4,20 @@
  */
 package com.github.etsai.utils.sql;
 
-import java.lang.ClassLoader;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.Properties;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,22 +26,6 @@ import java.util.logging.Logger;
  * @author etsai
  */
 public class ConnectionPool {
-    /**
-     * Stores state information for a connection in the form of a tuple
-     * @author etsai
-     */
-    static class ConnectionInfo implements Comparator<Date> {
-        /** Last time the connection was removed from the pool */
-        public Date lastUsed;
-        /** Connection to the database */
-        public Connection connection;
-
-        @Override
-        public int compare(Date o1, Date o2) {
-            return o1.compareTo(o2);
-        }
-    }
-    
     /** Max number of connections in the pool */
     private int maxConnections;
     /** URL to the database */
@@ -48,9 +33,9 @@ public class ConnectionPool {
     /** Properties for connecting to the database */
     private Properties dbProps;
     /** Open connections that are not being used, ordered by last used date */
-    private PriorityQueue<ConnectionInfo> availableConnections;
+    private final List<Connection> availableConnections;
     /** Connections that are currently being used */
-    private Map<Connection, ConnectionInfo> usedConnections;
+    private final Set<Connection> usedConnections;
     
     /**
      * Creates a pool with a configurable connection limit
@@ -59,8 +44,8 @@ public class ConnectionPool {
     public ConnectionPool(int maxConnections) {
         this.maxConnections= maxConnections;
         dbProps= new Properties();
-        availableConnections= new PriorityQueue<>();
-        usedConnections= new HashMap<>();
+        availableConnections= new ArrayList<>(maxConnections);
+        usedConnections= new HashSet<>();
     }
     /**
      * Creates a pool with the default number of 5 connections
@@ -111,7 +96,7 @@ public class ConnectionPool {
      * @param   driverClassName  JDBC driver name
      * @param   loader  Class loader to use to load the driver
      * @throws ClassNotFoundException If the driver class cannot be loaded
-     * @throws SQLException If an error occured reistering the driver
+     * @throws SQLException If an error occurred registering the driver
      * @throws InstantiationException If the JDBC driver could not be instantiated
      * @throws IllegalAccessException If the JDBC driver could not be instantiated
      */
@@ -127,8 +112,8 @@ public class ConnectionPool {
      * @param   conn    Connection to release
      */
     public synchronized void release(Connection conn) {
-        if (conn != null && usedConnections.containsKey(conn)) {
-            availableConnections.add(usedConnections.get(conn));
+        if (conn != null && usedConnections.contains(conn)) {
+            availableConnections.add(conn);
             usedConnections.remove(conn);
             notifyAll();
         }
@@ -141,32 +126,29 @@ public class ConnectionPool {
      */
     public synchronized Connection getConnection() throws SQLException {
         if (availableConnections.isEmpty()) {
-            if (usedConnections.keySet().size() >= maxConnections) {
+            if (usedConnections.size() >= maxConnections) {
                 try {
                     wait();
                 } catch (InterruptedException ex) {
                     Logger.getLogger(ConnectionPool.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } else {
-                ConnectionInfo connInfo= new ConnectionInfo();
-                connInfo.lastUsed= Calendar.getInstance().getTime();
-                connInfo.connection= DriverManager.getConnection(url, dbProps);
-                availableConnections.add(connInfo);
+                availableConnections.add(DriverManager.getConnection(url, dbProps));
             }
         }
-        usedConnections.put(availableConnections.peek().connection, availableConnections.peek());
-        return availableConnections.poll().connection;
+        usedConnections.add(availableConnections.get(0));
+        return availableConnections.remove(0);
     }
     /**
      * Close all connections in the pool
-     * @throws SQLException If an error occured from closing a connection
+     * @throws SQLException If an error occurred from closing a connection
      */
     public void close() throws SQLException {
-        while(!availableConnections.isEmpty()) {
-            availableConnections.poll().connection.close();
+        for(Connection conn: availableConnections) {
+            conn.close();
         }
-        for(Entry<Connection, ConnectionInfo> entry: usedConnections.entrySet()) {
-            entry.getKey().close();
+        for(Connection conn: usedConnections) {
+            conn.close();
         }
     }
 }
