@@ -90,21 +90,6 @@ public class ConnectionPool {
     public void setDbDriver(String driverClassName) throws ClassNotFoundException {
         Class.forName(driverClassName);
     }
-    /**
-     * Set the JDBC driver name that is needed to connect to the database.  This version should be used 
-     * if the driver is not part of the default classpath.  
-     * @param   driverClassName  JDBC driver name
-     * @param   loader  Class loader to use to load the driver
-     * @throws ClassNotFoundException If the driver class cannot be loaded
-     * @throws SQLException If an error occurred registering the driver
-     * @throws InstantiationException If the JDBC driver could not be instantiated
-     * @throws IllegalAccessException If the JDBC driver could not be instantiated
-     */
-    public void setDbDriver(String driverClassName, ClassLoader loader) throws ClassNotFoundException, 
-            SQLException, InstantiationException, IllegalAccessException {
-        Driver driver= (Driver)Class.forName(driverClassName, true, loader).newInstance();
-        DriverManager.registerDriver(new FakeSqlDriver(driver));
-    }
 
     /**
      * Release a connection, adding it back to the pool of available connections.  If the connection 
