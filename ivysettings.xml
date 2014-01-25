@@ -3,7 +3,7 @@
     <resolvers>
         <sftp name="default" user="etsai" host="192.168.1.121" keyFile="${user.home}/.ssh/id_rsa">
             <ivy pattern="${repo.dir}/[module]/ivy-[revision].xml"/>
-            <artifact pattern="${repo.dir}/[organisation]/[module]/[artifact].[ext]"/>
+            <artifact pattern="${repo.dir}/[organisation]/[module]/[artifact]-[revision].[ext]"/>
         </sftp>
     </resolvers>
 </ivysettings>
