@@ -76,6 +76,7 @@
         <taskdef name="describe" classname="com.github.etsai.utils.ant.taskdef.Describe" classpath="${build.classes.dir}"/>
         <describe versionproperty="version" />
         <ivy:resolve file="ivy.xml"/>
+        <ivy:deliver deliverpattern="${dist.dir}/[artifact].[ext]" pubrevision="${version}"/>
         <ivy:publish pubrevision="${version}" resolver="default" >
             <artifacts pattern="${dist.dir}/[artifact].[ext]"/>
         </ivy:publish>

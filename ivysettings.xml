@@ -1,7 +1,7 @@
 <ivysettings>
-    <property name="repo.dir" value="/home/ivypublisher" />
+    <property name="repo.dir" value="/home/ivyrepo" />
     <resolvers>
-        <sftp name="default" user="ivypublisher" host="192.168.1.121" keyFile="D:/code/Java/EtsaiJavaUtils/ivypublisher_rsa">
+        <sftp name="default" user="etsai" host="192.168.1.121" keyFile="${user.home}/.ssh/id_rsa">
             <ivy pattern="${repo.dir}/[module]/ivy-[revision].xml"/>
             <artifact pattern="${repo.dir}/[organisation]/[module]/[artifact].[ext]"/>
         </sftp>
