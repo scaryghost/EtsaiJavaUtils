@@ -1,0 +1,7 @@
+<ivy-module version="2.3">
+    <info organisation="com.github.etsai" module="javautils"/>
+    <publications>
+        <artifact name="javautils" ext="jar" />
+    </publications>
+</ivy-module>
+

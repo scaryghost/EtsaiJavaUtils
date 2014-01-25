@@ -7,7 +7,7 @@
 <!-- the Compile on Save feature is turned off for the project. -->
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
-<project name="EtsaiJavaUtils" default="default" basedir=".">
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="EtsaiJavaUtils" default="default" basedir="." >
     <description>Builds, tests, and runs the project EtsaiJavaUtils.</description>
     <import file="nbproject/build-impl.xml"/>
     <!--
@@ -71,9 +71,27 @@
     nbproject/build-impl.xml file. 
 
     -->
+
+    <target name="publish" depends="jar" description="Publish this build into repository">
+        <taskdef name="describe" classname="com.github.etsai.utils.ant.taskdef.Describe" classpath="${build.classes.dir}"/>
+        <describe versionproperty="version" />
+        <ivy:resolve file="ivy.xml"/>
+        <ivy:publish pubrevision="${version}" resolver="default" >
+            <artifacts pattern="${dist.dir}/[artifact].[ext]"/>
+        </ivy:publish>
+    </target>
     
+<!--    
     <target name="publish" depends="jar">
-        <taskdef name="publish" classname="com.github.etsai.utils.ant.taskdef.Publish" classpath="${build.classes.dir}"/>
+        
         <publish srcjar="${dist.jar}" dest="${dist.dir}" />
     </target>
+
+    <target name="resolve" description="retrieve dependencies with ivy">
+        <sftp user="ivypublisher" host="tf2n.dyndns-server.com">
+            <ivy pattern="/home/sftponly/chroot/ivylibs/ivy.xml"/>
+        </sftp> 
+        <ivy:retrieve />
+    </target>
+-->
 </project>
