@@ -43,6 +43,18 @@ public class Describe extends Task {
     private String dirtyProperty;
     private String versionProperty;
     
+    private String join(String[] elements, String separator) {
+        if (elements.length == 0) {
+            return "";
+        }
+        
+        int i= 1;
+        String joinedStr= elements[0];
+        for(;i < elements.length; i++) {
+            joinedStr+= separator + elements[i];
+        }
+        return joinedStr;
+    }
     /**
      * Executes the task.
      * @throws BuildException If git describe failed to run
@@ -52,17 +64,29 @@ public class Describe extends Task {
             File baseDir= getProject().getBaseDir();
             Process proc= Runtime.getRuntime().exec(gitCommand, null, baseDir);
             String describe= new BufferedReader(new InputStreamReader(proc.getInputStream())).readLine();
-            String[] versionParts= describe.split("-");
+            String[] describeParts= describe.split("-");
             
             if (dirtyProperty != null) {
                 getProject().setProperty(dirtyProperty, String.valueOf(describe.contains("dirty")));
             }
             if (versionProperty != null) {
-                String version= versionParts[0] + ".";
-                if (versionParts.length == 1) {
-                    version+= "0";
-                } else {
-                    version+= versionParts[1];
+                String[] versionParts= describeParts[0].split("\\.");
+                String version;
+                switch (versionParts.length) {
+                    case 2:
+                        if(describeParts.length == 1) {
+                            version= describeParts[0] + ".0";   
+                        } else {
+                            version= describeParts[0] + "." + describeParts[1];
+                        }
+                        break;
+                    case 3:
+                        Integer newStep= Integer.valueOf(versionParts[2]) + Integer.valueOf(describeParts[1]);
+                        
+                        version= join(new String[] {versionParts[0], versionParts[1], newStep.toString()}, ".");
+                        break;
+                    default:
+                        throw new BuildException("Git describe did not return a version in X.Y or X.Y.Z format: " + describeParts[0]);
                 }
                 getProject().setProperty(versionProperty, version);
             }
