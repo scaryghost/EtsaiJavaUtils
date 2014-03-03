@@ -1,5 +1,8 @@
 <ivy-module version="2.3">
     <info organisation="com.github.etsai" module="javautils"/>
+    <configurations defaultconf="default">
+    	<conf name="default"  description="Default configuration"/>
+    </configurations>
     <publications>
         <artifact name="javautils" ext="jar" />
     </publications>
