@@ -1,9 +1,10 @@
 <ivy-module version="2.3">
     <info organisation="com.github.etsai" module="javautils"/>
-    <configurations defaultconf="default">
-    	<conf name="default"  description="Default configuration"/>
+    <configurations defaultconf="run">
+    	<conf name="build" description="Only use for build rules" />
+        <conf name="run" description="Use for runtime dependency" />
     </configurations>
-    <publications>
+    <publications defaultconf="run">
         <artifact name="javautils" ext="jar" />
     </publications>
 </ivy-module>
