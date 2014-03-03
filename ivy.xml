@@ -4,7 +4,7 @@
     	<conf name="build" description="Only use for build rules" />
         <conf name="run" description="Use for runtime dependency" />
     </configurations>
-    <publications defaultconf="run">
+    <publications>
         <artifact name="javautils" ext="jar" />
     </publications>
 </ivy-module>
